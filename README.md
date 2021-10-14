@@ -65,7 +65,7 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 1. 右上角给本项目点个star :star: ，拉取本项目代码
 
-   `https://github.com/lwm98/health160.git`
+   `git clone https://github.com/lwm98/health160.git`
 
 2. 安装python环境，详情参考[菜鸟教程](https://www.runoob.com/python/python-install.html) 章节python安装
 
