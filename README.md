@@ -83,13 +83,13 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 ## :sparkles: 感谢
 
-##### 非常感谢原作者[@pengpan](https://github.com/pengpan)提供的代码 https://github.com/pengpan/91160 
+##### 非常感谢原作者[@pengpan](https://github.com/pengpan)提供的初代代码及思路 https://github.com/pengpan/91160 
 
 
 
 ## :pencil: 写在最后
 
-##### 本人改进该脚本的初衷，就是为了给女朋友抢hpv九价的疫苗，因为人工手动抢除了运气极好，否则根本不现实，特意在github浏览，并发现[@pengpan](https://github.com/pengpan)提供的逻辑清晰的代码，但由于脚本很久没有维护，故并没有顺利跑通。在多次测试并经本人一番更改网络请求参数及部分流程操作后，大功告成。
+##### 本人改进该脚本的初衷，就是为了给女朋友抢hpv九价的疫苗，因为人工手动抢除了运气极好，否则根本不现实，特意在github浏览，并发现[@pengpan](https://github.com/pengpan)提供的逻辑清晰的初代代码，但由于很久没有维护，故并没有顺利跑通。在多次测试并经本人一番更改网络请求参数及部分流程操作后，大功告成。
 
 ##### 同时，本人是真的十分讨厌黄牛奸商，故该脚本开源但禁止商业使用，望理解
 
@@ -101,5 +101,4 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 ![Snipaste_2021-10-14_11-41-51](https://user-images.githubusercontent.com/48340898/137247678-4dcc34d5-422e-4aec-949d-d6bc48616379.png)
 ![image](https://user-images.githubusercontent.com/48340898/137247727-bae5648a-e30e-4995-92d0-da17a668e647.png)
 
-
-
+peace & love
