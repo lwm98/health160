@@ -95,5 +95,8 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 觉得该项目有用，就点个star吧！
 
+![Snipaste_2021-10-14_11-41-51](https://user-images.githubusercontent.com/48340898/137247678-4dcc34d5-422e-4aec-949d-d6bc48616379.png)
+![image](https://user-images.githubusercontent.com/48340898/137247727-bae5648a-e30e-4995-92d0-da17a668e647.png)
+
 
 
