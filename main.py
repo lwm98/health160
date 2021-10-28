@@ -11,6 +11,7 @@ from base64 import b64decode, b64encode
 from fake_useragent import UserAgent
 import logging.handlers
 import random
+import tempfile
 
 # 请修改此处，或者保持为空
 configs = {
@@ -27,6 +28,7 @@ configs = {
     'doctor_name': ''
 }
 
+print("您的useragent临时文件夹为，有需要请复制它：%s" % tempfile.gettempdir())
 ua = UserAgent()
 
 PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDWuY4Gff8FO3BAKetyvNgGrdZM9CMNoe45SzHMXxAPWw6E2idaEjqe5uJFjVx55JW" \

@@ -79,7 +79,15 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 5. 按照控制台提示进行抢号挂号，等待好消息吧！
 
+## 记录
 
+- 出现较多的问题： fake_useragent.errors.FakeUserAgentError: Maximum amount of retries reached
+
+  原因： 由于DB无法获得在线的useragent的文件
+
+  解决办法：缓存useragent的文件到本地，不用它的自动获取。详情参考 https://www.freesion.com/article/37461287842/
+
+  注：文件已经上传到本repo中，直接把它复制粘贴到临时文件夹中即可，查看临时文件夹位置可以参考上述链接，文件main.py中已加上，运行复制即可。
 
 ## :sparkles: 感谢
 
