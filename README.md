@@ -1,5 +1,6 @@
 # health160
 
+> 2021-11-01：如有问题，可以在issue提，我会尽量抽空总结
 > 2021-10-28：运行main.py 出现fake-useragent报错的问题，已解决，详情参考下方记录
 
 ## 💡 特别声明:
@@ -80,6 +81,8 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 5. 按照控制台提示进行抢号挂号，等待好消息吧！
 
 ## :bomb: 记录
+
+- 问题已汇总至issues置顶
 
 - 出现较多的问题： fake_useragent.errors.FakeUserAgentError: Maximum amount of retries reached
 
