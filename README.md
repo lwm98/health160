@@ -1,5 +1,7 @@
 # health160
 
+> 2021-11-22：鉴于大家提出的各式问题，刚刚试着约了一下其他有号科目，第一次也[报错](https://github.com/lwm98/health160/issues/6#issuecomment-975028164)，自动重试第二次成功。所以建议各位在自己本地运行的时候，先试下能不能成功约别的有号科目（成功预约后再取消，但是注意**一个月不能取消超过三次！**）
+
 > 2021-11-01：如有问题，可以在issue提，我会尽量抽空总结
 
 > 2021-10-28：运行main.py 出现fake-useragent报错的问题，已解决，详情参考下方记录
@@ -75,7 +77,7 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
    `pip install -r requirements.txt`
 
-4. 运行main.py 
+4. 运行main.py
 
    `python main.py`
 
