@@ -333,14 +333,13 @@ def get_ticket(ticket, unit_id, dep_id):
         "buyinsurance": 1
     }
     url = "https://www.91160.com/guahao/ysubmit.html"
-    logging.error("URL: {}".format(url))
-    logging.error("PARAM: {}".format(data))
+    logging.error("准备提交++++URL: {}".format(url))
+    logging.error("提交参数++++PARAM: {}".format(data))
     r = session.post(url, data=data, headers=get_headers(), allow_redirects=False)
     if r.status_code == 302:
         redirect_url = r.headers["location"]
         logging.error(redirect_url)
         if get_ticket_result(redirect_url):
-            logging.error("预约成功，请留意短信通知！")
             return True
         else:
             return False
@@ -582,7 +581,7 @@ def run():
                 else:
                     continue
             except Exception as e:
-                logging.error("抢票失败，正在重试，发生错误：{}".format(e))
+                logging.error("发生错误：=获取票的参数失败了，建议多试几次=：{}".format(e))
                 continue
             break
         else:
