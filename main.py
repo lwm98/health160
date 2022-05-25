@@ -13,23 +13,40 @@ import logging.handlers
 import random
 import tempfile
 
+import requests
+
+
+def get_proxy():
+    # 5000：settings中设置的监听端口，不是Redis服务的端口
+    return requests.get("http://127.0.0.1:5010/get?type=https").json()
+
+
+def delete_proxy(proxy):
+    requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+
+
+proxy = get_proxy().get("proxy")
+# proxy = proxy1[0:proxy1.rfind(':')]
+# logging.error(proxy)
+
 # 请修改此处，或者保持为空
 configs = {
-    'username': '', # 记住账号请填入这里
-    'password': '', # 记住密码请填入这里
-    'city_index': '',
+    'username': '',  # 记住账号请填入这里
+    'password': '',  # 记住密码请填入这里
+    'city_index': '8',
     'unit_id': '',
     'dep_id': '',
     'doc_id': '',
-    'weeks': ['1','2','3','4','5','6','7'], # 如需更改，例： 周一 ['1']  周一三五 ['1','3','5'] 周二四 ['2','4']
-    'days': ['am','pm'],
+    # 如需更改，例： 周一 ['1']  周一三五 ['1','3','5'] 周二四 ['2','4']
+    'weeks': ['1', '2', '3', '4', '5', '6', '7'],
+    'days': ['am', 'pm'],
     'unit_name': '',
     'dep_name': '',
     'doctor_name': ''
 }
 
-print("您的useragent临时文件夹为，有需要请复制它：%s" % tempfile.gettempdir())
-ua = UserAgent()
+print("有需要请把fake_useragent_0.1.11.json文件复制到这里：%s" % tempfile.gettempdir())
+ua = UserAgent(use_cache_server=False)
 
 PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDWuY4Gff8FO3BAKetyvNgGrdZM9CMNoe45SzHMXxAPWw6E2idaEjqe5uJFjVx55JW" \
              "+5LUSGO1H5MdTcgGEfh62ink/cNjRGJpR25iVDImJlLi2izNs9zrQukncnpj6NGjZu" \
@@ -151,7 +168,9 @@ def get_headers() -> json:
     return {
         "User-Agent": ua.random,
         "Referer": "https://www.91160.com",
-        "Origin": "https://www.91160.com"
+        "Origin": "https://www.91160.com",
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
     }
 
 
@@ -178,9 +197,11 @@ def login(username, password) -> bool:
         "error_num": 0,
         "tokens": token
     }
-    res = session.post(firstUrl, data=firstData, headers=get_headers(), allow_redirects=False)
+    res = session.post(firstUrl, data=firstData, headers=get_headers(
+    ), allow_redirects=False, proxies={"http": "http://{}".format(proxy)})
     if res.status_code == 200:
-        r = session.post(url, data=data, headers=get_headers(), allow_redirects=False)
+        r = session.post(url, data=data, headers=get_headers(
+        ), allow_redirects=False, proxies={"http": "http://{}".format(proxy)})
         if r.status_code == 302:
             redirect_url = r.headers["location"]
             logging.error(redirect_url)
@@ -196,38 +217,47 @@ def login(username, password) -> bool:
     else:
         return False
 
+
 def testLoginInfo() -> bool:
     url = "https://user.91160.com/order.html"
-    r = session.get(url, headers=get_headers())
+    r = session.get(url, headers=get_headers(), proxies={
+                    "http": "http://{}".format(proxy)})
     r.encoding = r.apparent_encoding
-    soup = BeautifulSoup(r.text, "html.parser")
+    soup = BeautifulSoup(r.text, "lxml")
     result = soup.find(attrs={"class": "ac_user_name"}).text
     logging.error(result)
     return True
 
+
 def realLogin(redirect_url) -> bool:
-    r = session.get(redirect_url,headers=get_headers(), allow_redirects=False)
+    r = session.get(redirect_url, headers=get_headers(
+    ), allow_redirects=False, proxies={"http": "http://{}".format(proxy)})
     logging.error(r)
     return r.status_code == 302
 
+
 def check_user(data) -> json:
     url = "https://user.91160.com/checkUser.html"
-    r = session.post(url, data=data, headers=get_headers())
+    r = session.post(url, data=data, headers=get_headers(),
+                     proxies={"http": "http://{}".format(proxy)})
     return json.loads(r.content.decode('utf-8'))
 
 
 def tokens() -> str:
     url = "https://user.91160.com/login.html"
-    r = session.get(url, headers=get_headers())
+    r = session.get(url, headers=get_headers(), proxies={
+                    "http": "http://{}".format(proxy)})
     r.encoding = r.apparent_encoding
-    soup = BeautifulSoup(r.text, "html.parser")
+    soup = BeautifulSoup(r.text, "lxml")
     return soup.find("input", id="tokens").attrs["value"]
+
 
 def brush_ticket(unit_id, dep_id, weeks, days) -> list:
     now_date = datetime.date.today().strftime("%Y-%m-%d")
     url = "https://www.91160.com/dep/getschmast/uid-{}/depid-{}/date-{}/p-0.html".format(
         unit_id, dep_id, now_date)
-    r = session.get(url, headers=get_headers())
+    r = session.get(url, headers=get_headers(), proxies={
+                    "http": "http://{}".format(proxy)})
     json_obj = r.json()
     if "week" not in json_obj:
         raise RuntimeError("刷票异常: {}".format(json_obj))
@@ -260,7 +290,8 @@ def brush_ticket_new(doc_id, dep_id, weeks, days) -> list:
         "date": now_date,
         "days": 6
     }
-    r = session.post(url, headers=get_headers(), data=data)
+    r = session.post(url, headers=get_headers(), data=data,
+                     proxies={"http": "http://{}".format(proxy)})
     json_obj = r.json()
 
     if "dates" not in json_obj:
@@ -305,9 +336,10 @@ def get_ticket(ticket, unit_id, dep_id):
     url = "https://www.91160.com/guahao/ystep1/uid-{}/depid-{}/schid-{}.html".format(
         unit_id, dep_id, schedule_id)
     logging.error(url)
-    r = session.get(url, headers=get_headers())
+    r = session.get(url, headers=get_headers(), proxies={
+                    "http": "http://{}".format(proxy)})
     r.encoding = r.apparent_encoding
-    soup = BeautifulSoup(r.text, "html.parser")
+    soup = BeautifulSoup(r.text, "lxml")
     data = {
         "sch_data": soup.find(attrs={"name": "sch_data"}).attrs["value"],
         "mid": soup.find(attrs={"name": "mid"}).attrs["value"],
@@ -335,11 +367,13 @@ def get_ticket(ticket, unit_id, dep_id):
     url = "https://www.91160.com/guahao/ysubmit.html"
     logging.error("准备提交++++URL: {}".format(url))
     logging.error("提交参数++++PARAM: {}".format(data))
-    r = session.post(url, data=data, headers=get_headers(), allow_redirects=False)
+
+    r = session.post(url, data=data, headers=get_headers(
+    ), allow_redirects=False, proxies={"http": "http://{}".format(proxy)})
     if r.status_code == 302:
         redirect_url = r.headers["location"]
         logging.error(redirect_url)
-        if get_ticket_result(redirect_url):
+        if get_ticket_result(redirect_url, proxy):
             return True
         else:
             return False
@@ -348,7 +382,8 @@ def get_ticket(ticket, unit_id, dep_id):
         logging.error("预约失败")
         return False
 
-def get_ticket_result(redirect_url) -> bool:
+
+def get_ticket_result(redirect_url, proxy) -> bool:
     if redirect_url == "https://www.91160.com":
         logging.error("提交后跳转到首页了，抢票不成功，继续抢！")
         return False
@@ -357,9 +392,10 @@ def get_ticket_result(redirect_url) -> bool:
         return True
     # r = session.get(redirect_url, headers=get_headers())
     # r.encoding = r.apparent_encoding
-    # soup = BeautifulSoup(r.text, "html.parser")
+    # soup = BeautifulSoup(r.text, "lxml")
     # result = soup.find(attrs={"class": "sucess-title"}).text
     # return result == "预约成功"
+
 
 def set_user_configs():
     while True:
@@ -413,7 +449,8 @@ def set_hospital_configs():
     data = {
         "c": cities[int(configs['city_index']) - 1]["cityId"]
     }
-    r = session.post(url, headers=get_headers(), data=data)
+    r = session.post(url, headers=get_headers(), data=data,
+                     proxies={"http": "http://{}".format(proxy)})
     hospitals = json.loads(r.content.decode('utf-8'))
     if configs['unit_id'] == "":
         print("=====请选择医院=====\n")
@@ -441,7 +478,8 @@ def set_department_configs():
     data = {
         "keyValue": configs["unit_id"]
     }
-    r = session.post(url, headers=get_headers(), data=data)
+    r = session.post(url, headers=get_headers(), data=data,
+                     proxies={"http": "http://{}".format(proxy)})
     departments = r.json()
     if configs['dep_id'] == "":
         print("=====请选择科室=====\n")
@@ -473,7 +511,8 @@ def set_doctor_configs():
     dep_id = configs["dep_id"]
     url = "https://www.91160.com/dep/getschmast/uid-{}/depid-{}/date-{}/p-0.html".format(
         unit_id, dep_id, now_date)
-    r = session.get(url, headers=get_headers())
+    r = session.get(url, headers=get_headers(), proxies={
+                    "http": "http://{}".format(proxy)})
     doctors = r.json()["doc"]
     doc_id_arr = []
     doc_name = {}
@@ -496,6 +535,7 @@ def set_doctor_configs():
     else:
         print("当前选择医生为：%s（%s）" % (configs["doctor_name"], configs["doc_id"]))
 
+
 def set_logger():
     LOG_FILENAME = 'atest.log'
     logger = logging.getLogger()
@@ -509,6 +549,7 @@ def set_logger():
         LOG_FILENAME, maxBytes=10485760, backupCount=5, encoding="utf-8")
     # file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+
 
 def set_week_configs():
     if not configs["weeks"]:
@@ -590,8 +631,10 @@ def run():
     logging.error("刷票结束")
     print("当前配置为：\n\t%s" % configs)
 
+
 def ramdomMath(max):
     return random.randint(0, max)
+
 
 if __name__ == '__main__':
     try:

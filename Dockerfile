@@ -1,5 +1,5 @@
 FROM python:3-alpine
-LABEL maintainer="MasterPan <i@hvv.me>"
+LABEL maintainer="lwm <821256519@qq.com>"
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk add -U --no-cache tzdata g++
