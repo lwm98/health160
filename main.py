@@ -258,10 +258,8 @@ def brush_ticket_new(user_key, unit_id, doc_id, dep_id, weeks, days) -> list:
     now_date = datetime.date.today().strftime("%Y-%m-%d")
     url = "https://gate.91160.com/guahao/v1/pc/sch/doctor?user_key={}&docid={}&doc_id={}&unit_id={}&dep_id={}&date={}&days=6".format(
         user_key, doc_id, doc_id, unit_id, dep_id, now_date)
-    # r = session.post(url, headers=get_headers())
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-    response = requests.get(url, headers=headers)
-    json_obj = response.json()
+    r = session.get(url, headers=get_headers())
+    json_obj = r.json()
 
     if "dates" not in json_obj:
         if "status" in json_obj:
