@@ -3,6 +3,7 @@ import time
 import json
 import datetime
 import logging
+import requests
 import requests.cookies
 from bs4 import BeautifulSoup
 from Crypto.PublicKey import RSA
@@ -25,7 +26,8 @@ configs = {
     'days': ['am','pm'],
     'unit_name': '',
     'dep_name': '',
-    'doctor_name': ''
+    'doctor_name': '',
+    'user_key': ''
 }
 
 print("您的useragent临时文件夹为，有需要请复制它：%s" % tempfile.gettempdir())
@@ -252,16 +254,14 @@ def brush_ticket(unit_id, dep_id, weeks, days) -> list:
     return [element for element in result if element["y_state"] == "1"]
 
 
-def brush_ticket_new(doc_id, dep_id, weeks, days) -> list:
+def brush_ticket_new(user_key, unit_id, doc_id, dep_id, weeks, days) -> list:
     now_date = datetime.date.today().strftime("%Y-%m-%d")
-    url = "https://www.91160.com/doctors/ajaxgetclass.html"
-    data = {
-        "docid": doc_id,
-        "date": now_date,
-        "days": 6
-    }
-    r = session.post(url, headers=get_headers(), data=data)
-    json_obj = r.json()
+    url = "https://gate.91160.com/guahao/v1/pc/sch/doctor?user_key={}&docid={}&doc_id={}&unit_id={}&dep_id={}&date={}&days=6".format(
+        user_key, doc_id, doc_id, unit_id, dep_id, now_date)
+    # r = session.post(url, headers=get_headers())
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    response = requests.get(url, headers=headers)
+    json_obj = response.json()
 
     if "dates" not in json_obj:
         if "status" in json_obj:
@@ -311,10 +311,10 @@ def get_ticket(ticket, unit_id, dep_id):
     data = {
         "sch_data": soup.find(attrs={"name": "sch_data"}).attrs["value"],
         "mid": soup.find(attrs={"name": "mid"}).attrs["value"],
-        "hisMemId": "",
+        "addressId": "3317",
+        "address": "China",
         "disease_input": "",
         "order_no": "",
-        "disease_content": "",
         "accept": "1",
         "unit_id": ticket["unit_id"],
         "schedule_id": ticket["schedule_id"],
@@ -328,9 +328,6 @@ def get_ticket(ticket, unit_id, dep_id):
         "detlid_realtime": soup.find("input", id="detlid_realtime").attrs["value"],
         "level_code": ticket["level_code"],
         "is_hot": "",
-        "addressId": "3317",
-        "address": "China",
-        "buyinsurance": 1
     }
     url = "https://www.91160.com/guahao/ysubmit.html"
     logging.error("准备提交++++URL: {}".format(url))
@@ -442,6 +439,8 @@ def set_department_configs():
         "keyValue": configs["unit_id"]
     }
     r = session.post(url, headers=get_headers(), data=data)
+    configs['user_key'] = session.cookies.get_dict()["access_hash"]
+
     departments = r.json()
     if configs['dep_id'] == "":
         print("=====请选择科室=====\n")
@@ -471,10 +470,11 @@ def set_doctor_configs():
     now_date = datetime.date.today().strftime("%Y-%m-%d")
     unit_id = configs["unit_id"]
     dep_id = configs["dep_id"]
-    url = "https://www.91160.com/dep/getschmast/uid-{}/depid-{}/date-{}/p-0.html".format(
-        unit_id, dep_id, now_date)
+    user_key = configs["user_key"]
+    url = "https://gate.91160.com/guahao/v1/pc/sch/dep?unit_id={}&dep_id={}" \
+            "&date={}&p=0&user_key={}".format(unit_id, dep_id, now_date, user_key)
     r = session.get(url, headers=get_headers())
-    doctors = r.json()["doc"]
+    doctors = r.json()["data"]["doc"]
     doc_id_arr = []
     doc_name = {}
     if configs["doc_id"] == "":
@@ -559,6 +559,7 @@ def run():
     doc_id = configs["doc_id"]
     weeks = configs["weeks"]
     days = configs["days"]
+    user_key = configs["user_key"]
     # 刷票休眠时间，频率过高会导致刷票接口拒绝请求
     sleep_time = 15
 
@@ -568,7 +569,7 @@ def run():
     while True:
         try:
             # tickets = brush_ticket(unit_id, dep_id, weeks, days)
-            tickets = brush_ticket_new(doc_id, dep_id, weeks, days)
+            tickets = brush_ticket_new(user_key, unit_id, doc_id, dep_id, weeks, days)
         except Exception as e:
             logging.error(e)
             break
