@@ -3,7 +3,6 @@ import time
 import json
 import datetime
 import logging
-import requests
 import requests.cookies
 from bs4 import BeautifulSoup
 from Crypto.PublicKey import RSA
